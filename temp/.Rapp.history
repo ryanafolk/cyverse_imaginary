@@ -1,0 +1,3323 @@
+return_multi <- cbind(IVV_ret, SOXX_ret) # you could insert as many return as you like#
+weights <- c(0.5, 0.5)#
+vol_budget <- StdDev(return_multi, portfolio_method = "component", weights = weights)
+return_multi
+return_multi <- cbind(IVV_ret$IVV.Adjusted, SOXX_ret$SOXX.Adjusted) # you could insert as many return as you like#
+#
+weights <- c(0.5, 0.5)#
+vol_budget <- StdDev(return_multi, portfolio_method = "component", weights = weights)
+return_multi <- na.omit(cbind(IVV_ret$IVV.Adjusted, SOXX_ret$SOXX.Adjusted)) # you could insert as many return as you like#
+weights <- c(0.5, 0.5)#
+vol_budget <- StdDev(return_multi, portfolio_method = "component", weights = weights)#
+weights <- c(0.5, 0.5)#
+vol_budget <- StdDev(return_multi, portfolio_method = "component", weights = weights)
+weights_percrisk <- cbind(weights, vol_budget$pct_contrib_StdDev)#
+colnames(weights_percrisk) <- c("weights", "perc vol contrib")#
+# Print the table#
+weights_percrisk
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2024-03-12"#
+last.date = "2024-06-24"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)
+### Modern portfolio theory#
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2024-03-12"#
+last.date = "2024-06-24"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)
+library(tseries)
+install.packages("tseries")
+# Load tseries#
+library(tseries)#
+#
+# Create an optimized portfolio of returns#
+opt <- portfolio.optim(stocks_ret)
+### Modern portfolio theory#
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2023-03-12"#
+last.date = "2024-06-24"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)#
+#
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)#
+#
+# Load tseries#
+library(tseries)#
+#
+# Create an optimized portfolio of returns#
+opt <- portfolio.optim(stocks_ret)
+opt
+# Create pf_weights#
+pf_weights <- opt$pw#
+#
+# Assign asset names#
+names(pf_weights) <- colnames(stocks_ret)#
+#
+# Select optimum weights opt_weights#
+opt_weights <- pf_weights[pf_weights >= 0.01]#
+#
+# Bar plot of opt_weights#
+barplot(opt_weights)
+# Print expected portfolio return#
+opt$pm
+# Print expected portfolio volatility#
+opt$ps
+# Create portfolio with target return of average returns #
+pf_mean <- portfolio.optim(stocks_ret, pm = mean(stocks_ret))#
+#
+# Create portfolio with target return 10% greater than average returns#
+pf_10plus <- portfolio.optim(stocks_ret, pm = 1.1 * mean(stocks_ret))
+# Print the standard deviations of both portfolios#
+pf_mean$ps#
+pf_10plus$ps#
+#
+# Calculate the proportion increase in standard deviation#
+(pf_10plus$ps - pf_mean$ps) / (pf_mean$ps)
+# Create returns_pf_estim the performance you expected using the evaluation sample#
+returns_pf_estim <- Return.portfolio(returns_estim, pf_estim$pw, rebalance_on = "months")#
+#
+# Create returns_pf_eval the actual return on the out-of-sample period#
+returns_pf_eval <- Return.portfolio(returns_eval, pf_estim$pw, rebalance_on = "months")#
+#
+# Print a table for your estimation portfolio#
+table.AnnualizedReturns(returns_pf_estim)#
+#
+# Print a table for your evaluation portfolio#
+table.AnnualizedReturns(returns_pf_eval)
+# Create returns_estim #
+returns_estim <- window(stocks_ret, end = "2003-12-31")#
+#
+# Create returns_eval#
+returns_eval <- window(stocks_ret, start = "2004-01-01")#
+#
+# Create returns_pf_estim the performance you expected using the evaluation sample#
+returns_pf_estim <- Return.portfolio(returns_estim, pf_estim$pw, rebalance_on = "months")#
+#
+# Create returns_pf_eval the actual return on the out-of-sample period#
+returns_pf_eval <- Return.portfolio(returns_eval, pf_estim$pw, rebalance_on = "months")#
+#
+# Print a table for your estimation portfolio#
+table.AnnualizedReturns(returns_pf_estim)#
+#
+# Print a table for your evaluation portfolio#
+table.AnnualizedReturns(returns_pf_eval)
+returns_estim
+# Create returns_estim #
+returns_estim <- window(stocks_ret, end = "2024-6-24")#
+#
+# Create returns_eval#
+returns_eval <- window(stocks_ret, start = "2024-6-24")#
+#
+# Create returns_pf_estim the performance you expected using the evaluation sample#
+returns_pf_estim <- Return.portfolio(returns_estim, pf_estim$pw, rebalance_on = "months")#
+#
+# Create returns_pf_eval the actual return on the out-of-sample period#
+returns_pf_eval <- Return.portfolio(returns_eval, pf_estim$pw, rebalance_on = "months")#
+#
+# Print a table for your estimation portfolio#
+table.AnnualizedReturns(returns_pf_estim)#
+#
+# Print a table for your evaluation portfolio#
+table.AnnualizedReturns(returns_pf_eval)
+# Create returns_estim #
+returns_estim <- window(stocks_ret, end = "2024-6-24")#
+#
+# Create returns_eval#
+returns_eval <- window(stocks_ret, start = "2024-6-24")#
+#
+# Create vector of max weights#
+max_weights <- rep(0.1, ncol(stocks_ret))#
+#
+# Create portfolio with estimation sample #
+pf_estim <- portfolio.optim(returns_estim, reshigh = max_weights)#
+#
+# Create portfolio with evaluation sample#
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)#
+#
+# Create a scatter plot with evaluation portfolio weights on the vertical axis#
+plot(pf_estim$pw, pf_eval$pw)#
+abline(a = 0, b = 1, lty = 3)
+max_weights
+# Create vector of max weights#
+max_weights <- rep(1/ncol(stocks_ret), ncol(stocks_ret))#
+#
+# Create portfolio with estimation sample #
+pf_estim <- portfolio.optim(returns_estim, reshigh = max_weights)#
+#
+# Create portfolio with evaluation sample#
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)#
+#
+# Create a scatter plot with evaluation portfolio weights on the vertical axis#
+plot(pf_estim$pw, pf_eval$pw)#
+abline(a = 0, b = 1, lty = 3)
+max_weights
+returns_estim
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)
+pf_estim
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)
+# Create returns_estim #
+returns_estim <- window(stocks_ret, end = "2024-6-24")#
+#
+# Create returns_eval#
+returns_eval <- window(stocks_ret, start = "2023-3-12")#
+#
+# Create vector of max weights#
+max_weights <- rep(1/ncol(stocks_ret), ncol(stocks_ret))#
+#
+# Create portfolio with estimation sample #
+pf_estim <- portfolio.optim(returns_estim, reshigh = max_weights)#
+#
+# Create portfolio with evaluation sample#
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)#
+#
+# Create a scatter plot with evaluation portfolio weights on the vertical axis#
+plot(pf_estim$pw, pf_eval$pw)#
+abline(a = 0, b = 1, lty = 3)
+# Create returns_pf_estim the performance you expected using the evaluation sample#
+returns_pf_estim <- Return.portfolio(returns_estim, pf_estim$pw, rebalance_on = "months")#
+#
+# Create returns_pf_eval the actual return on the out-of-sample period#
+returns_pf_eval <- Return.portfolio(returns_eval, pf_estim$pw, rebalance_on = "months")#
+#
+# Print a table for your estimation portfolio#
+table.AnnualizedReturns(returns_pf_estim)#
+#
+# Print a table for your evaluation portfolio#
+table.AnnualizedReturns(returns_pf_eval)
+stocks_ret
+# Create vector of max weights#
+max_weights <- rep(0.5, ncol(stocks_ret))#
+#
+# Create portfolio with estimation sample #
+pf_estim <- portfolio.optim(returns_estim, reshigh = max_weights)#
+#
+# Create portfolio with evaluation sample#
+pf_eval <- portfolio.optim(returns_eval, reshigh = max_weights)#
+#
+# Create a scatter plot with evaluation portfolio weights on the vertical axis#
+plot(pf_estim$pw, pf_eval$pw)#
+abline(a = 0, b = 1, lty = 3)
+# Create returns_pf_estim the performance you expected using the evaluation sample#
+returns_pf_estim <- Return.portfolio(returns_estim, pf_estim$pw, rebalance_on = "months")#
+#
+# Create returns_pf_eval the actual return on the out-of-sample period#
+returns_pf_eval <- Return.portfolio(returns_eval, pf_estim$pw, rebalance_on = "months")#
+#
+# Print a table for your estimation portfolio#
+table.AnnualizedReturns(returns_pf_estim)#
+#
+# Print a table for your evaluation portfolio#
+table.AnnualizedReturns(returns_pf_eval)
+opt
+# Create pf_weights#
+pf_weights <- opt$pw#
+#
+# Assign asset names#
+names(pf_weights) <- colnames(stocks_ret)#
+#
+# Select optimum weights opt_weights#
+opt_weights <- pf_weights[pf_weights >= 0.01]#
+#
+# Bar plot of opt_weights#
+barplot(opt_weights)#
+#
+# Print expected portfolio return#
+opt$pm#
+#
+# Print expected portfolio volatility#
+opt$ps#
+#
+# Create portfolio with target return of average returns #
+pf_mean <- portfolio.optim(stocks_ret, pm = mean(stocks_ret))#
+#
+# Create portfolio with target return 10% greater than average returns#
+pf_10plus <- portfolio.optim(stocks_ret, pm = 1.1 * mean(stocks_ret))#
+#
+# Print the standard deviations of both portfolios#
+pf_mean$ps#
+pf_10plus$ps#
+#
+# Calculate the proportion increase in standard deviation#
+(pf_10plus$ps - pf_mean$ps) / (pf_mean$ps)
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2023-03-12"#
+last.date = "2024-06-24"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)
+opt <- portfolio.optim(stocks_ret)
+opt
+names(pf_weights) <- colnames(stocks_ret)
+pf_weights
+opt_weights <- pf_weights[pf_weights >= 0.01]
+opt_weights
+### Modern portfolio theory#
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2024-03-12"#
+last.date = "2024-06-24"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)#
+#
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)
+# Load tseries#
+library(tseries)#
+#
+# Create an optimized portfolio of returns#
+opt <- portfolio.optim(stocks_ret)
+### Modern portfolio theory#
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2024-03-12"#
+last.date = "2023-09-01"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)#
+#
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)
+tickers <- c("IVV", "SOXX", "IGM", "IEFA", "VWO", "VHT", "VDE", "VNQ")#
+first.date = "2024-03-12"#
+last.date = "2023-09-01"#
+getSymbols(tickers, from=first.date, to=last.date, periodicity = 'monthly')#
+ClosePrices <- lapply(tickers, function(x) Ad(get(x)))#
+#
+# The process to combine into one dataframe a bit messy here, there should be a better way#
+dim2 <- dim(ClosePrices[[1]])[1]#
+df_fin = data.frame(matrix(nrow = dim2))#
+for (i in 1:length(ClosePrices)){#
+	df_fin <- cbind2(df_fin, ClosePrices[i])#
+	}#
+df_fin <- df_fin[,(-1)]#
+head(df_fin)#
+#
+stocks_ret <- CalculateReturns(as.xts(df_fin))#
+# Drop first row because it is NA#
+stocks_ret <- stocks_ret[(-1),]#
+head(stocks_ret)
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 20000  # Initial investment amount#
+expected_return <- 0.07      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 500  # Monthly contribution
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal() + format(scientific = FALSE)
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal() + format(x, big.mark = ",", scientific = FALSE)
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal() + format(value, big.mark = ",", scientific = FALSE)
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal() + format(x, big.mark = ",", scientific = FALSE)
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") + format(x, big.mark = ",", scientific = FALSE) + #
+  theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") + scale_x_continuous(labels = scales::comma) + #
+  theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") + scale_x_continuous(labels = scales::comma) + #
+  theme_minimal() + xlim(0, quantiles[2])
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+initial_investment <- 10000            # Initial investment amount#
+years <- 30                            # Number of years to simulate#
+n_simulations <- 1000                  # Number of simulations#
+monthly_contribution <- 500            # Monthly contribution
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment
+library(MASS)#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+initial_investment <- 20000            # Initial investment amount#
+years <- 30                            # Number of years to simulate#
+n_simulations <- 10000                 # Number of simulations#
+monthly_contribution <- 500            # Monthly contribution#
+#
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+library(MASS)#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)            # Portfolio weights#
+initial_investment <- 20000            # Initial investment amount#
+years <- 30                            # Number of years to simulate#
+n_simulations <- 10000                 # Number of simulations#
+monthly_contribution <- 500            # Monthly contribution#
+#
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+library(MASS)#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+returns
+Sys.Date() - years*365
+Sys.Date() - 2*365
+expected_return
+portfolio_returns
+portfolio_values
+# Define parameters#
+#tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+#weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)            # Portfolio weights#
+initial_investment <- 20000            # Initial investment amount#
+years <- 30                            # Number of years to simulate#
+n_simulations <- 10000                 # Number of simulations#
+monthly_contribution <- 500            # Monthly contribution#
+#
+# Fetch historical data, last two years#
+getSymbols(tickers, from = Sys.Date() - 2*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+library(MASS)#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+library(MASS)  # For mvrnorm#
+#
+# Define parameters#
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 10000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+#
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 20000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+#
+# Fetch historical data, last two years#
+getSymbols(tickers, from = Sys.Date() - 2*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+library(MASS)  # For mvrnorm#
+#
+# Define parameters#
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 20000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+#
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions and quarterly rebalancing#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+  # Rebalance portfolio quarterly (approximately every 63 trading days)#
+  if (i %% 63 == 1) {#
+    total_value <- portfolio_values[i, ]#
+    portfolio_values[i, ] <- total_value * sum(weights)#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions and Quarterly Rebalancing",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+#################
+# Montecarlo simulation using a portfolio with measures fetched from ticker symbols, and quarterly rebalancing#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+library(MASS)  # For mvrnorm#
+#
+# Define parameters#
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 20000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+#
+# Fetch historical data, last three years#
+getSymbols(tickers, from = Sys.Date() - 3*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions and quarterly rebalancing#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+  # Rebalance portfolio quarterly (approximately every 63 trading days)#
+  if (i %% 63 == 1) {#
+    total_value <- portfolio_values[i, ]#
+    portfolio_values[i, ] <- total_value * sum(weights)#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions and Quarterly Rebalancing",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+cat("Principle:" initial_investment*years*monthly_contribution, "\n")
+cat("Principle:", initial_investment*years*monthly_contribution, "\n")
+options(scipen=999)
+cat("Principle:", initial_investment*years*monthly_contribution, "\n")
+cat("Principle:", comma(initial_investment*years*monthly_contribution), "\n")
+cat("Principle:", format(initial_investment*years*monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+cat("Principle:", format(initial_investment + years * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+sum(weights * monthly_contribution)
+portfolio_values
+portfolio_values[i, ]
+weights
+monthly_contribution
+sum(weights * monthly_contribution)
+total_value * sum(weights)
+total_value <- portfolio_values[i, ]
+total_value
+sum(weights)
+portfolio_values[i, ]
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 20000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+#
+# Fetch historical data, last three years#
+getSymbols(tickers, from = Sys.Date() - 3*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions and quarterly rebalancing#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+  # Rebalance portfolio quarterly (approximately every 63 trading days)#
+  if (i %% 63 == 1) {#
+    total_value <- portfolio_values[i, ]#
+    portfolio_values[i, ] <- total_value * weights[1] + total_value * weights[2]#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 5000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = mean_value, color = "red", linetype = "dashed", size = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions and Quarterly Rebalancing",#
+       x = "Portfolio Value",#
+       y = "Frequency") +#
+  theme_minimal()
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+tickers <- c("IVV", "VNQ")  # Ticker symbols#
+weights <- c(0.9, 0.1)      # Portfolio weights#
+initial_investment <- 20000 # Initial investment amount#
+years <- 30                 # Number of years to simulate#
+n_simulations <- 1000       # Number of simulations#
+monthly_contribution <- 500 # Monthly contribution#
+# Fetch historical data#
+getSymbols(tickers, from = Sys.Date() - years*365, to = Sys.Date())#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate expected returns and covariance matrix from historical data#
+expected_return <- colMeans(returns, na.rm = TRUE)#
+cov_matrix <- cov(returns, use = "complete.obs")#
+#
+# Generate random returns for the portfolio#
+set.seed(123)  # Set seed for reproducibility#
+n_days <- years * 252#
+random_returns <- matrix(0, nrow = n_days, ncol = n_simulations)#
+#
+for (i in 1:n_simulations) {#
+  simulated_returns <- mvrnorm(n = n_days, mu = expected_return / 252, Sigma = cov_matrix / 252)#
+  portfolio_returns <- simulated_returns %*% weights#
+  random_returns[, i] <- portfolio_returns#
+}#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_days + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values with contributions and quarterly rebalancing#
+for (i in 2:(n_days + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution divided according to weights at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + sum(weights * monthly_contribution)#
+  }#
+  # Rebalance portfolio quarterly (approximately every 63 trading days)#
+  if (i %% 63 == 1) {#
+    total_value <- portfolio_values[i, ]#
+    portfolio_values[i, ] <- total_value * weights[1] + total_value * weights[2]#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_days + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+sum(weights * monthly_contribution)
+total_value * weights[1] + total_value * weights[2]
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 20000  # Initial investment amount#
+expected_return <- 0.07      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 500  # Monthly contribution#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.025, 0.975))  # 95% confidence interval#
+#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution,big.mark=",",scientific=FALSE), "\n")
+years * 12 * monthly_contribution
+cat("Median interest:", format(median_value - initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights, rebalance_on = "none")#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Extract the final cumulative return value#
+final_cumulative_return <- tail(cumulative_return, 1)#
+#
+# Calculate annualized return#
+annual_return <- (1 + final_cumulative_return)^(252 / nrow(portfolio_returns)) - 1#
+#
+# Calculate standard deviation of returns (volatility)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)
+StdDev(portfolio_returns)
+portfolio_returns
+head(portfolio_returns)
+StdDev(portfolio_returns)
+volatility <- stdev(portfolio_returns) * sqrt(252)
+volatility <- stddev(portfolio_returns) * sqrt(252)
+volatility <- StdDev(portfolio_returns) * sqrt(252)
+class(volatility#
+)
+annual_return
+cumulative_return
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights, rebalance_on = "none")#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Extract the final cumulative return value#
+final_cumulative_return <- tail(cumulative_return, 1)#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)
+volatility
+annualized_return
+# Print results#
+cat("Cumulative return of the portfolio from", start_date, "to", end_date, "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV")  # Ticker symbols#
+weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", start_date, "to", end_date, "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")
+start_date <- as.Date("1995-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", start_date, "to", end_date, "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+#tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+#weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+tickers <- c("IVV")  # Ticker symbols#
+weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", start_date, "to", end_date, "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 20000  # Initial investment amount#
+expected_return <- 0.07      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 500  # Monthly contribution#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+cumulative_returns <- apply(portfolio_values, 2, function(x) (x[length(x)] / initial_investment) - 1)
+confidence_level <- 0.90       # Confidence level for credibility interval (90% here)#
+quantiles <- quantile(cumulative_returns, probs = c((1 - confidence_level) / 2, 1 - (1 - confidence_level) / 2))
+year <- 1:years#
+plot_data <- data.frame(year = rep(year, n_simulations),#
+                        cumulative_returns = c(t(apply(portfolio_values[-1, ], 1, function(x) (x / initial_investment - 1)))))
+ggplot(plot_data, aes(x = year, y = cumulative_returns)) +#
+  geom_line(color = "blue") +#
+  geom_ribbon(aes(ymin = quantiles[1], ymax = quantiles[2]), fill = "gray", alpha = 0.3) +#
+  labs(title = "Cumulative Returns of Portfolio Over Time with 90% Credibility Interval",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+thin_factor = 100#
+plot_data <- plot_data[seq(1, nrow(plot_data), by = thin_factor), ]#
+#
+ggplot(plot_data, aes(x = year, y = cumulative_returns)) +#
+  geom_line(color = "blue") +#
+  geom_ribbon(aes(ymin = quantiles[1], ymax = quantiles[2]), fill = "gray", alpha = 0.3) +#
+  labs(title = "Cumulative Returns of Portfolio Over Time with 90% Credibility Interval",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+year <- 1:years#
+plot_data <- data.frame(year = rep(year, n_simulations),#
+                        cumulative_returns = c(t(apply(portfolio_values[-1, ], 1, function(x) (x / initial_investment - 1)))))#
+#
+ggplot(plot_data, aes(x = year, y = cumulative_returns)) +#
+  geom_line(color = "blue") +#
+  geom_ribbon(aes(ymin = quantiles[1], ymax = quantiles[2]), fill = "gray", alpha = 0.3) +#
+  labs(title = "Cumulative Returns of Portfolio Over Time with 90% Credibility Interval",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+head(plot_data)
+plot_data
+head(plot_data, 100)
+plot_data <- data.frame(year = rep(year, n_simulations/100),#
+                        cumulative_returns = c(t(apply(portfolio_values[-1, ], 1, function(x) (x / initial_investment - 1)))))
+ggplot(plot_data, aes(x = year, y = cumulative_returns)) +#
+  geom_line(color = "blue") +#
+  geom_ribbon(aes(ymin = quantiles[1], ymax = quantiles[2]), fill = "gray", alpha = 0.3) +#
+  labs(title = "Cumulative Returns of Portfolio Over Time with 90% Credibility Interval",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+plot_data
+quantiles
+cumulative_returns
+ggplot(plot_data, aes(x = year, y = cumulative_returns, group = simulation)) +#
+  geom_line(alpha = 0.1, color = "blue") +  # Overlay all simulations with transparency#
+  labs(title = "Cumulative Returns of Portfolio Over Time (1000 Simulations)",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+plot_data <- data.frame(#
+  year = rep(1:years, each = n_simulations),#
+  cumulative_returns = c(t(apply(portfolio_values[-1, ], 1, function(x) (x / initial_investment - 1)))),#
+  simulation = rep(1:n_simulations, times = years)#
+)#
+#
+# Plotting using ggplot2#
+library(ggplot2)#
+#
+ggplot(plot_data, aes(x = year, y = cumulative_returns, group = simulation)) +#
+  geom_line(alpha = 0.1, color = "blue") +  # Overlay all simulations with transparency#
+  labs(title = "Cumulative Returns of Portfolio Over Time (1000 Simulations)",#
+       x = "Year",#
+       y = "Cumulative Returns") +#
+  theme_minimal()
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.07      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484  # Monthly contribution#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+cat("Four percent rule monthly income:", format((median_value * 0.04)/12), big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule monthly income:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule annual income:", format((median_value * 0.04)), big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule annual income:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", start_date, "to", end_date, "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+as.Date("2022-09-01")
+cat("Cumulative return of the portfolio from", as.Date(start_date), "to", as.Date(end_date), "is:", tail(cumulative_return, 1), "\n")
+as.Date("2022-09-01")
+start_date
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date
+cat("Cumulative return of the portfolio from", as.Date(start_date), "to", as.Date(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")
+cat("Cumulative return of the portfolio from", string(start_date), "to", string(end_date), "is:", tail(cumulative_return, 1), "\n")
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+cat("Four percent rule monthly income:", format((median_value * 0.04)/12), big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule monthly income:", format((median_value * 0.04)/12), big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule monthly income:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484  # Monthly contribution#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * 0.02#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484  # Monthly contribution#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * 0.02#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(median_value / (1 + 0.03)^30, big.mark=",", scientific=FALSE), "\n")
+(1 + inflation_rate)^years
+(1 + 0.03)^30
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(median_value / ((1 + 0.03)^30), big.mark=",", scientific=FALSE), "\n")
+median_value / ((1 + 0.03)^30)
+((1 + 0.03)^30)
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(median_value / (1 + 0.03)^30, big.mark=",", scientific=FALSE), "\n")
+median_value
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(((median_value / (1 + 0.03)^30) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")
+monthly_contribution
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 30                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * 0.02#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(((median_value / (1 + 0.03)^30) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+# Define parameters#
+initial_investment <- 0  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 5                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484  # Monthly contribution plus my own#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * 0.02#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(((median_value / (1 + 0.03)^30) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * 0.02#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule monthly income before tax:", format((median_value * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax:", format(median_value * 0.04, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(((median_value / (1 + 0.03)^30) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+deflate(value, inflation) {#
+value = value / (1 + inflation)^years#
+return value}
+deflate <- function(value, inflation) {#
+value = value / (1 + inflation)^years#
+return value}
+deflate <- function(value, inflation){#
+value = value / (1 + inflation)^years#
+return value}
+deflate <- function(value, inflation){#
+value = value / (1 + inflation)^years#
+return(value)}
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value) * 0.04, big.mark=",", scientific=FALSE), "\n")
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("95% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+years = 30 # Now simulate 30 years of retirement#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - portfolio_values[i, ] * 0.04#
+  } #
+}
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+# ChatGPT was used to help assemble this code#
+#
+options(scipen=999)#
+#
+#################
+# Get parameters from a real portfolio#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")#
+#################
+# Simple Montecarlo simulation#
+# This can be used to calculate compound interest with uncertainty#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal() #
+years <- 30 # Now simulate 30 years of retirement#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- median_value * 0;04#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+drawdown
+# ChatGPT was used to help assemble this code#
+#
+options(scipen=999)#
+#
+#################
+# Get parameters from a real portfolio#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")#
+#################
+# Simple Montecarlo simulation#
+# This can be used to calculate compound interest with uncertainty#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal() #
+years_retirement <- 30 # Now simulate 30 years of retirement#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- median_value * 0.04#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+drawdown
+# ChatGPT was used to help assemble this code#
+#
+options(scipen=999)#
+#
+#################
+# Get parameters from a real portfolio#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2022-09-01")  # Start date#
+end_date <- as.Date("2024-06-24")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")#
+#################
+# Simple Montecarlo simulation#
+# This can be used to calculate compound interest with uncertainty#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 120000  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal() #
+years_retirement <- 30 # Now simulate 30 years of retirement#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- (median_value * 0.04)/12#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")#
+# Plot results#
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+# ChatGPT was used to help assemble this code#
+#
+options(scipen=999)#
+#
+#################
+# Get parameters from a real portfolio#
+#################
+#
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.581, 0.192, 0.184, 0.043)
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV")  # Ticker symbols
+weights <- c(1)            # Portfolio weights
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+library(ggplot2)#
+#
+# Define parameters#
+initial_investment <- 131600  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^years#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+final_values_df <- data.frame(value = final_values)#
+ggplot(final_values_df, aes(x = value)) +#
+  geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +#
+  geom_vline(xintercept = median_value, color = "red", linetype = "dashed", linewidth = 1) +#
+  labs(title = "Monte Carlo Simulation of Investment Portfolio with Monthly Contributions",#
+       x = "Portfolio Value", y = "Frequency") + #
+    scale_x_continuous(labels = scales::comma) + xlim(0, quantiles[2]) + theme_minimal()
+deflate(4000000, 0.03)
+deflate(3000000, 0.03)
+years_retirement <- 30 # Now simulate 30 years of retirement#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- (median_value * 0.04)/12#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+drawdown
+median_value * 0.04
+initial_investment <- 131600  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval
+years_retirement <- 30 # Now simulate 30 years of retirement#
+n_periods <- years_retirement * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- (median_value * 0.04)/12#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+initial_investment <- 131600  # Initial investment amount#
+expected_return <- 0.08      # Expected annual return (e.g., 7%, which is conservative)#
+volatility <- 0.15           # Standard deviation of returns (e.g., 15%, ~SP500 volatility)#
+years <- 34                  # Number of years to simulate#
+n_simulations <- 10000       # Number of simulations#
+n_periods <- years * 252     # Number of trading days (assuming 252 trading days per year)#
+monthly_contribution <- 1484 + 500  # Monthly contribution plus my own#
+annual_raise <- 0.02#
+#
+# Generate random returns#
+set.seed(123)  # Set seed for reproducibility#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Initialize portfolio value matrix#
+portfolio_values <- matrix(0, nrow = n_periods + 1, ncol = n_simulations)#
+portfolio_values[1, ] <- initial_investment#
+#
+# Simulate portfolio values#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add monthly contribution at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] + monthly_contribution#
+  }#
+  # Add annual raise#
+  if (i %% 252 == 1) {  # Approximately 21 trading days per month#
+    monthly_contribution <-  monthly_contribution +  monthly_contribution * annual_raise#
+#
+  }#
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval
+years_retirement <- 30 # Now simulate 30 years of retirement#
+n_periods <- years_retirement * 252     # Number of trading days (assuming 252 trading days per year)#
+drawdown <- (median_value * 0.04)/12#
+#
+random_returns <- matrix(rnorm(n_periods * n_simulations, mean = expected_return / 252, sd = volatility / sqrt(252)), ncol = n_simulations)#
+#
+# Simulate portfolio values with 4% drawdown#
+for (i in 2:(n_periods + 1)) {#
+  portfolio_values[i, ] <- portfolio_values[i - 1, ] * (1 + random_returns[i - 1, ])#
+  # Add withdrawal at the beginning of each month#
+  if (i %% 21 == 1) {  # Approximately 21 trading days per month#
+    portfolio_values[i, ] <- portfolio_values[i, ] - drawdown#
+  } #
+}#
+#
+# Get final portfolio values#
+final_values <- portfolio_values[n_periods + 1, ]#
+#
+# Analyze results#
+mean_value <- mean(final_values)#
+median_value <- median(final_values)#
+quantiles <- quantile(final_values, probs = c(0.05, 0.95))  # 90% confidence interval#
+# Print results#
+cat("Mean portfolio value after", years, "years:", mean_value, "\n")#
+cat("Median portfolio value after", years, "years:", median_value, "\n")#
+cat("90% confidence interval:", quantiles, "\n")#
+cat("Principle:", format(initial_investment + years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+cat("Median interest:", format(median_value - initial_investment - years * 12 * monthly_contribution, big.mark=",", scientific=FALSE), "\n")#
+deflate <- function(value, inflation) {#
+	value = value / (1 + inflation)^(years + years_retirement)#
+	return(value)#
+	}#
+cat("Four percent rule monthly income before tax, inflation-adjusted:", format((deflate(median_value, 0.03) * 0.04)/12, big.mark=",", scientific=FALSE), "\n")#
+cat("Four percent rule annual income before tax, inflation-adjusted:", format(deflate(median_value, 0.03) * 0.04, big.mark=",", scientific=FALSE), "\n")
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.75, 0.10, 0.10, 0.05)#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.75, 0.10, 0.10, 0.05)#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-20")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.581, 0.192, 0.184, 0.043)#
+#
+# tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+# weights <- c(0.75, 0.10, 0.10, 0.05)#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+#tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+#weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.581, 0.192, 0.184, 0.043)#
+#
+# tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+# weights <- c(0.75, 0.10, 0.10, 0.05)#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-25")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+# Load necessary libraries#
+library(quantmod)#
+library(PerformanceAnalytics)#
+#
+# Define parameters#
+#tickers <- c("IVV", "SOXX", "IGM", "VHT", "VDE", "IEFA", "VWO", "VNQ")  # Ticker symbols#
+#weights <- c(0.31, 0.196, 0.184, 0.055, 0.052, 0.082, 0.078, 0.043)            # Portfolio weights#
+#
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.581, 0.192, 0.184, 0.043)#
+#
+# tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+# weights <- c(0.75, 0.10, 0.10, 0.05)#
+#tickers <- c("IVV")  # Ticker symbols#
+#weights <- c(1)            # Portfolio weights#
+start_date <- as.Date("2024-06-1")  # Start date#
+end_date <- as.Date("2024-06-28")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV")  # Ticker symbols
+start_date <- as.Date("2024-06-01")  # Start date#
+end_date <- as.Date("2024-06-28")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+weights <- c(1)
+start_date <- as.Date("2024-06-01")  # Start date#
+end_date <- as.Date("2024-06-28")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-28")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+tickers <- c("IVV", "SOXX", "IGM", "VNQ")  # Ticker symbols#
+weights <- c(0.581, 0.192, 0.184, 0.043)
+start_date <- as.Date("2024-03-21")  # Start date#
+end_date <- as.Date("2024-06-28")    # End date#
+#
+# Fetch historical data#
+getSymbols(tickers, from = start_date, to = end_date)#
+prices <- do.call(merge, lapply(tickers, function(x) Cl(get(x))))#
+#
+# Calculate daily returns#
+returns <- na.omit(ROC(prices, type = "discrete"))#
+#
+# Calculate portfolio daily returns#
+portfolio_returns <- Return.portfolio(returns, weights = weights)#
+#
+# Calculate cumulative return#
+cumulative_return <- cumprod(1 + portfolio_returns) - 1#
+#
+# Calculate annualized return (using mean daily return)#
+mean_daily_return <- mean(portfolio_returns)#
+annualized_return <- (1 + mean_daily_return)^252 - 1#
+#
+# Calculate annualized volatility (standard deviation of daily returns)#
+volatility <- StdDev(portfolio_returns) * sqrt(252)#
+#
+# Print results#
+cat("Cumulative return of the portfolio from", as.character(start_date), "to", as.character(end_date), "is:", tail(cumulative_return, 1), "\n")#
+cat("Annualized return of the portfolio is:", annualized_return, "\n")#
+cat("Annualized volatility (standard deviation) of the portfolio is:", volatility, "\n")#
+#
+# Plot cumulative return#
+chart.CumReturns(portfolio_returns, main = "Cumulative Return of the Portfolio", legend.loc = "topleft")
+rootdir <- "/Users/ryanfolk/Desktop/cyverse_imaginary/temp/" # only absolute paths here#
+# enter upload date, needs to match dated folder name#
+date <- "2024-7-8"#
+# build working dir#
+wkdir <- paste(rootdir,date,sep="")#
+# check that the path exists#
+dir.create(file.path(paste(rootdir, date, "/", sep="")))#
+# output location#
+fiOUT <- "/Users/ryanfolk/Desktop/cyverse_imaginary/temp/"
+rootdir <- "/Users/ryanfolk/Documents/GitHub/cyverse_imaginary/temp/" # only absolute paths here#
+# enter upload date, needs to match dated folder name#
+date <- "2024-7-8"#
+# build working dir#
+wkdir <- paste(rootdir,date,sep="")#
+# check that the path exists#
+dir.create(file.path(paste(rootdir, date, "/", sep="")))#
+# output location#
+fiOUT <- "/Users/ryanfolk/Documents/GitHub/cyverse_imaginary/temp/"
+date <- "2024-9-25"
+wkdir <- paste(rootdir,date,sep="")#
+# check that the path exists#
+dir.create(file.path(paste(rootdir, date, "/", sep="")))#
+# output location#
+fiOUT <- "/Users/ryanfolk/Documents/GitHub/cyverse_imaginary/temp/"
+FL <- sub("/Users/ryanfolk/Documents/GitHub/cyverse_imaginary/temp/", "MISSA/", dir(path = wkdir, full.names=TRUE))#
+# get file names from file list#
+catnum<-sub(".*/", "", FL)#
+# remove .JPG from file names#
+catnum<-sub(".JPG", "", catnum, ignore.case=TRUE)#
+# strip off "_letter" from file names#
+# so that only catalogNumber remains#
+# changed it to be case insensitive on 2023-11-20 (HB)#
+# b/c some files have ".jpg" vs. ".JPG"#
+catnum <- gsub("_\\D+","",catnum,ignore.case=TRUE)#
+#changed from "_\\D",""..." to "_\\D+",""..." on 2023-11-20 (HB).#
+#realized there was a problem when adding in situ images to the workflow because#
+#USCH0068840_insitu was changed to USCH0068400nsitu#
+#adding "+" matches 1 to unlimited times as many as needed
+df <- data.frame(matrix(ncol = 5, nrow = 0))#
+# assign column names to match images.csv in DwC-A format#
+x <- c("catalogNumber","sourceURL","originalURL","thumbnailURL","URL")#
+# insert colnames into df#
+colnames(df)<-x#
+# populate df with constructed URLs and corresponding catalogNumbers#
+df[1:length(FL),]<-c(catnum,paste("https://img.cyverse.org/resize?width=4000&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/",FL,sep=""),#
+                           paste("https://img.cyverse.org/resize?width=4000&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/",FL,sep=""),#
+                           paste("https://img.cyverse.org/thumbnail?height=200&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/",FL,sep=""),#
+                           paste("https://img.cyverse.org/resize?width=1250&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/",FL,sep=""))#
+#
+write.csv(df, paste(fiOUT, "UpLd_", date, "_Fldr_", JPGfldr, "_", min(catnum), "-", max(catnum), ".csv", sep=""), row.names = FALSE)
+write.csv(df, paste(fiOUT, "UpLd_", date, "_Fldr_", date, "_", min(catnum), "-", max(catnum), ".csv", sep=""), row.names = FALSE)
+df[1:length(FL),]<-c(catnum,paste("https://img.cyverse.org/resize?width=4000&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/sernec-portal/",FL,sep=""),#
+                           paste("https://img.cyverse.org/resize?width=4000&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/sernec-portal/",FL,sep=""),#
+                           paste("https://img.cyverse.org/thumbnail?height=200&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/sernec-portal/",FL,sep=""),#
+                           paste("https://img.cyverse.org/resize?width=1250&url=https://data.cyverse.org/dav-anon/iplant/projects/magnoliagrandiFLORA/sernec-portal/",FL,sep=""))#
+#
+write.csv(df, paste(fiOUT, "UpLd_", date, "_Fldr_", date, "_", min(catnum), "-", max(catnum), ".csv", sep=""), row.names = FALSE)
