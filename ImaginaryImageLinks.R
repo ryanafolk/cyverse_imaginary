@@ -2,7 +2,7 @@
 # author Herrick H.K. Brown 2022-11-09
 # Edits by Ryan Folk 2024 forward, variables, paths &c.
 
-# Only this code block should need to be modified, and really only date needs to be modified in each mapping file creation
+# Only the first code block should need to be modified, and really only date needs to be modified in each mapping file creation
 # It is not necessary to set the working directory
 
 # IMPORTANT TIPS:
